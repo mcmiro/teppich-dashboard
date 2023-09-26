@@ -29,23 +29,22 @@ const Statistic = () => {
   const stats = [
     {
       name: `Umsatz für ${germanMonth(currentMonthIndex)}`,
-      //value: `€ ${germanFormatSumm(summaryMonthly(currentMonth(), orders))}`,
       value: `€ ${germanFormatSumm(
         summaryMonthly(germanMonth(currentMonthIndex), orders)
       )}`,
       change: `${
-        compareMonthsInPercent(orders) > 100 ? '+' : '-'
+        compareMonthsInPercent(orders) > 0 ? '+' : ''
       } ${germanFormatSumm(compareMonthsInPercent(orders))}%`,
       changeType: `${
-        compareMonthsInPercent(orders) > 100 ? 'positive' : 'negative'
+        compareMonthsInPercent(orders) > 0 ? 'positive' : 'negative'
       }`,
     },
     {
       name: `Umsatz heute`,
       value: `€ ${germanFormatSumm(summaryDaily(todayDate(), orders))}`,
       change: `${
-        compareDaysInPercent(orders) >= 0 ? '+' : '-'
-      } ${compareDaysInPercent(orders)}%`,
+        compareDaysInPercent(orders) >= 0 ? '+' : ''
+      } ${compareDaysInPercent(orders).toFixed(2)}%`,
       changeType: `${
         compareDaysInPercent(orders) >= 0 ? 'positive' : 'negative'
       }`,

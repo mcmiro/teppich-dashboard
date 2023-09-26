@@ -144,18 +144,29 @@ export const useOrders = () => {
   // compare days in percentage
   const compareDaysInPercent = (orders: OrderDataModel[]): number => {
     const currentDate = new Date();
-    const yesterday = currentDate.setDate(currentDate.getDate() - 1);
+    currentDate.setDate(currentDate.getDate() - 1);
+    const formattedDateYesterday = currentDate.toISOString().split('T')[0];
     const summYesterday = summaryDaily(
-      handleDate(yesterday.toString()),
+      handleDate(formattedDateYesterday.toString()),
       orders
     );
 
     const summToday = summaryDaily(todayDate(), orders);
 
-    const result =
-      summToday === 0 || summYesterday === 0 ? 0 : summToday / summYesterday;
-
-    return result ? 100 : result * 100;
+    if (summYesterday === 0 && summToday > 0) {
+      return 100;
+    }
+    if (summToday === 0 && summYesterday > 0) {
+      return -100;
+    }
+    if (summToday > summYesterday && summYesterday > 0) {
+      return (summToday / summYesterday) * 100 - 100;
+    }
+    if (summToday < summYesterday && summYesterday > 0) {
+      return -(100 - (summToday / summYesterday) * 100);
+    } else {
+      return 0;
+    }
   };
 
   // compare months in percentage
@@ -164,7 +175,7 @@ export const useOrders = () => {
     const currentDate = new Date();
     const currentMonthIndex = currentDate.getMonth();
     const previousMonth = currentMonthIndex - 1;
-    // get summ of previous
+    //get summ of previous
     const previousMonthSumm = summaryMonthly(
       germanMonth(previousMonth),
       orders
@@ -173,9 +184,20 @@ export const useOrders = () => {
     //get summ of current month
     const currentMonthSumm = summaryMonthly(currentMonth(), orders);
 
-    const result = currentMonthSumm / previousMonthSumm;
-
-    return result <= 0 ? 100 : 100 - result * 100;
+    if (previousMonthSumm === 0 && currentMonthSumm > 0) {
+      return 100;
+    }
+    if (currentMonthSumm === 0 && previousMonthSumm > 0) {
+      return -100;
+    }
+    if (currentMonthSumm > previousMonthSumm && previousMonthSumm > 0) {
+      return (currentMonthSumm / previousMonthSumm) * 100 - 100;
+    }
+    if (currentMonthSumm < previousMonthSumm && previousMonthSumm > 0) {
+      return -(100 - (currentMonthSumm / previousMonthSumm) * 100);
+    } else {
+      return 0;
+    }
   };
 
   return {
