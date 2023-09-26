@@ -1,3 +1,4 @@
+import { PropductModel } from './product';
 export interface OrderDataModel {
   id: number;
   first_name: string;
@@ -8,7 +9,7 @@ export interface OrderDataModel {
   number: string;
   postal_code: number;
   town: string;
-  products: string;
+  products: PropductModel[];
   summ: number;
   status: string;
   created_at: string;
