@@ -18,27 +18,6 @@ const OrderDataTable = ({ orders }: OrderDataTableProps) => {
 
   const tableColumns = [
     {
-      name: 'Bearbeiten',
-      cell: (row: OrderDataModel) => (
-        <UI.EditCellButton data={row} onClick={handleRowClick} />
-      ),
-    },
-    {
-      name: 'ID',
-      selector: (row: OrderDataModel) => row.id,
-      sortable: true,
-    },
-    {
-      name: 'Status',
-      selector: (row: OrderDataModel) => row.status,
-      sortable: true,
-      cell: (row: any) => (
-        <div>
-          <UI.Label status={row.status} />
-        </div>
-      ),
-    },
-    {
       name: 'Name',
       selector: (row: OrderDataModel) => row.first_name,
       sortable: true,
@@ -59,6 +38,16 @@ const OrderDataTable = ({ orders }: OrderDataTableProps) => {
         <div>
           <div className="font-semibold text-gray-800">{row.address}</div>
           <div className="text-gray-500 text-xs pt-1">{row.number}</div>
+        </div>
+      ),
+    },
+    {
+      name: 'Status',
+      selector: (row: OrderDataModel) => row.status,
+      sortable: true,
+      cell: (row: any) => (
+        <div>
+          <UI.Label status={row.status} />
         </div>
       ),
     },
@@ -89,6 +78,11 @@ const OrderDataTable = ({ orders }: OrderDataTableProps) => {
           </div>
         </div>
       ),
+    },
+    {
+      name: 'ID',
+      selector: (row: OrderDataModel) => row.id,
+      sortable: true,
     },
   ];
 
@@ -121,6 +115,7 @@ const OrderDataTable = ({ orders }: OrderDataTableProps) => {
         columns={tableColumns}
         data={searchValue ? filteredItems : orders}
         pagination
+        onRowClicked={handleRowClick}
         paginationPerPage={25}
         paginationRowsPerPageOptions={[25, 50, 100]}
         paginationComponentOptions={{
