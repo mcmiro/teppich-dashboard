@@ -85,9 +85,11 @@ export const useOrders = () => {
     let dailySum = 0;
 
     if (Array.isArray(orders)) {
+      const currentYear = new Date().getFullYear();
       orders.map((el: OrderDataModel) => {
         const orderMonth = handleDate(el.created_at).split(' ')[1];
-        if (month == orderMonth) {
+        const orderYear = handleDate(el.created_at).split(' ')[2];
+        if (month === orderMonth && orderYear === currentYear.toString()) {
           dailySum += el.summ * 1;
         }
       });
