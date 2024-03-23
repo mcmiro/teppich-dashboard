@@ -49,10 +49,31 @@ const OrderModal = ({ data, onToggle }: OrderModalProps) => {
       onClick={handleToggleModal}
       className="flex items-center justify-center fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-20 cursor-pointer"
     >
-      <div className="bg-white h-[80vh] w-10/12 max-w-[800px] rounded-lg cursor-default overflow-y-scroll">
+      <div className="bg-white h-full md:h-[80vh] w-full max-w-[800px] md:rounded-lg cursor-default overflow-y-scroll">
         <div className="overflow-hidden bg-white shadow sm:rounded-lg min-h-full pb-24">
+          <div className="flex justify-end pt-2 px-4 text-[24px]">
+            <div
+              onClick={onToggle}
+              className="flex justify-center items-center cursor-pointer w-8 h-8"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                className="w-8 h-8"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+              </svg>
+            </div>
+          </div>
           <div className="flex justify-between">
-            <div className="px-4 py-6 sm:px-6">
+            <div className="px-4 pb-6 pt-2 sm:px-6">
               <h3 className="text-base font-semibold leading-7 text-gray-900">
                 Bestellinformation
               </h3>
@@ -60,7 +81,7 @@ const OrderModal = ({ data, onToggle }: OrderModalProps) => {
                 Kunden- und Produktdaten
               </p>
             </div>
-            <div className="px-4 py-6 sm:px-6 text-right">
+            <div className="px-4 pb-6 pt-2 sm:px-6 text-right">
               <div className="flex gap-2 justify-end">
                 <div>
                   <img src={Calender} alt="Kalender" className="h-full w-5 " />

@@ -49,6 +49,12 @@ const DropDown = ({ onSelect }: DropDownProps) => {
               onClick={(e) => handleSelect(e, 'open')}
               className="block px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
             >
+              offen
+            </li>
+            <li
+              onClick={(e) => handleSelect(e, 'inprogress')}
+              className="block px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+            >
               in Bearbeitung
             </li>
             <li

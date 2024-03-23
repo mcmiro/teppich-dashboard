@@ -23,6 +23,12 @@ const Label = ({ status }: LabelProps) => {
           bgColor: 'border border-yellow-300 bg-yellow-50 text-yellow-500',
         });
         return;
+      case 'inprogress':
+        setLabelValues({
+          status: 'in Bearbeitung',
+          bgColor: 'border border-purple-300 bg-purple-50 text-purple-500',
+        });
+        return;
       case 'unobtainable':
         setLabelValues({
           status: 'nicht erreichbar',
