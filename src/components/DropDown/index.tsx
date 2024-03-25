@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Arrow from '../../assets/icons/caret-down.svg';
+import { ICON } from '../../assets/icons';
 
 export interface DropDownProps {
   onSelect: (value: string) => void;
@@ -30,7 +30,7 @@ const DropDown = ({ onSelect }: DropDownProps) => {
         >
           {selectedItem ? selectedItem : 'Auswählen'}
           <img
-            src={Arrow}
+            src={ICON.ArrowDown}
             className={`-mr-1 h-5 w-5 text-gray-400 ${
               active ? 'rotate-180' : ''
             }`}

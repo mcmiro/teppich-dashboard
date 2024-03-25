@@ -4,12 +4,22 @@ import useOrdersStore from '../store/orders-store';
 import { useDateTime } from './use-date-time';
 import { OrderDataModel } from '../models/order';
 import { BACKEND_URL } from '../mocks/backend';
+import { statusTitles } from '../status';
+
+interface StatusStatistic {
+  title: string;
+  sum: number;
+}
 
 export const useOrders = () => {
   const { orders, updateOrders } = useOrdersStore();
-  const [total, setTotal] = useState(0);
+  const [totalSummary, setTotalSummary] = useState<number>(0);
+  const [filteredOrders, setFilteredOrders] = useState<OrderDataModel[]>([]);
+  const [statusStatistic, setStatusStatistic] = useState<StatusStatistic[]>([]);
   const { handleDate, todayDate, currentMonth, germanMonth } = useDateTime();
-  const [filterData, setFilterData] = useState<OrderDataModel[]>([]);
+  const [currentYear, setCurrentYear] = useState<number>(
+    new Date().getFullYear()
+  );
 
   // get & set all orders from backend
   const fetchData = async (): Promise<OrderDataModel[]> => {
@@ -65,7 +75,7 @@ export const useOrders = () => {
       summ += el.summ * 1;
     });
 
-    setTotal(summ);
+    setTotalSummary(summ);
 
     return obj;
   };
@@ -80,20 +90,45 @@ export const useOrders = () => {
     return formattedNumber;
   };
 
+  // get selected month orders
+  const getSelectedMonthOrders = (month: string): void => {
+    const filteredOrders = orders.filter((el: OrderDataModel) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_, orderMonth, orderYear] = handleDate(el.created_at).split(' ');
+      return month === orderMonth && orderYear === currentYear.toString();
+    });
+
+    const statusStatisticSums: Record<string, number> = {};
+
+    filteredOrders.forEach((order) => {
+      const { status, summ } = order;
+      statusStatisticSums[status] =
+        (statusStatisticSums[status] || 0) + summ * 1;
+    });
+
+    const statisticSums = Object.entries(statusStatisticSums).map(
+      ([status, sum]) => ({
+        title: statusTitles[status],
+        sum,
+      })
+    );
+
+    setStatusStatistic(statisticSums);
+
+    setFilteredOrders(filteredOrders);
+  };
+
   // summ monthly
-  const summaryMonthly = (month: string, orders: OrderDataModel[]): number => {
+  const summaryMonthly = (month: string): number => {
     let dailySum = 0;
 
-    if (Array.isArray(orders)) {
-      const currentYear = new Date().getFullYear();
-      orders.map((el: OrderDataModel) => {
-        const orderMonth = handleDate(el.created_at).split(' ')[1];
-        const orderYear = handleDate(el.created_at).split(' ')[2];
-        if (month === orderMonth && orderYear === currentYear.toString()) {
-          dailySum += el.summ * 1;
-        }
-      });
-    }
+    orders.map((el: OrderDataModel) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_, orderMonth, orderYear] = handleDate(el.created_at).split(' ');
+      if (month === orderMonth && orderYear === currentYear.toString()) {
+        dailySum += el.summ * 1;
+      }
+    });
 
     return dailySum;
   };
@@ -172,19 +207,16 @@ export const useOrders = () => {
   };
 
   // compare months in percentage
-  const compareMonthsInPercent = (orders: OrderDataModel[]): number => {
+  const compareMonthsInPercent = (): number => {
     // get previous month
     const currentDate = new Date();
     const currentMonthIndex = currentDate.getMonth();
     const previousMonth = currentMonthIndex - 1;
     //get summ of previous
-    const previousMonthSumm = summaryMonthly(
-      germanMonth(previousMonth),
-      orders
-    );
+    const previousMonthSumm = summaryMonthly(germanMonth(previousMonth));
 
     //get summ of current month
-    const currentMonthSumm = summaryMonthly(currentMonth(), orders);
+    const currentMonthSumm = summaryMonthly(currentMonth());
 
     if (previousMonthSumm === 0 && currentMonthSumm > 0) {
       return 100;
@@ -204,10 +236,10 @@ export const useOrders = () => {
 
   return {
     orders,
-    total,
-    filterData,
+    totalSummary,
     germanFormatSumm,
-    setFilterData,
+    setCurrentYear,
+    currentYear,
     summaryDaily,
     countDailyOrders,
     countOpenOrders,
@@ -215,5 +247,8 @@ export const useOrders = () => {
     compareDaysInPercent,
     compareMonthsInPercent,
     handleUpdateStatus,
+    getSelectedMonthOrders,
+    filteredOrders,
+    statusStatistic,
   };
 };

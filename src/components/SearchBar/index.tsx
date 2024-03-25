@@ -1,5 +1,5 @@
 import useSearchStore from '../../store/search-store';
-import Remove from '../../assets/icons/remove.svg';
+import { ICON } from '../../assets/icons';
 
 const SearchBar = () => {
   const { searchValue, updateSearchValue } = useSearchStore();
@@ -50,7 +50,7 @@ const SearchBar = () => {
                 onClick={handleClear}
                 className="absolute -right-3 top-[50%] translate-y-[-50%] w-12 p-2 cursor-pointer"
               >
-                <img src={Remove} alt="Löschen" />
+                <img src={ICON.Remove} alt="Löschen" />
               </div>
             )}
           </div>

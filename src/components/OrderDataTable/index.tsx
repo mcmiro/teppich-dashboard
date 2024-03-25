@@ -60,6 +60,11 @@ const OrderDataTable = ({ orders }: OrderDataTableProps) => {
       ),
     },
     {
+      name: 'Telefon',
+      selector: (row: OrderDataModel) => row.phone,
+      sortable: false,
+    },
+    {
       name: 'E-Mail',
       selector: (row: OrderDataModel) => row.email,
       sortable: true,

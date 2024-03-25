@@ -1,5 +1,5 @@
 import { OrderDataModel } from '../../models/order';
-import Pencil from '../../assets/icons/pencil.svg';
+import { ICON } from '../../assets/icons';
 
 export interface EditCellButtonProps {
   data: OrderDataModel;
@@ -13,7 +13,7 @@ const EditCellButton = ({ data, onClick }: EditCellButtonProps) => {
 
   return (
     <button onClick={handleClick} className="h-8">
-      <img src={Pencil} alt="Bearbeiten" />
+      <img src={ICON.Pencil} alt="Bearbeiten" />
     </button>
   );
 };
