@@ -139,26 +139,35 @@ const OrderModal = ({ data, onToggle }: OrderModalProps) => {
               <div className="px-4 py-6 sm:px-6">
                 <dt className="text-sm font-medium text-gray-900">
                   Bestellstatus
-                  <div className="flex gap-2 w-full pt-2">
-                    <div className="w-6/12">
-                      <UI.DropDown onSelect={handleSelectDropDown} />
+                  {data.status !== 'done' ? (
+                    <div className="flex gap-2 w-full pt-2">
+                      <div className="w-6/12">
+                        <UI.DropDown onSelect={handleSelectDropDown} />
+                      </div>
+                      <div className="w-6/12 ">
+                        <button
+                          disabled={statusValue === ''}
+                          onClick={handleStatus}
+                          type="button"
+                          className={`inline-flex items-center gap-x-2 rounded px-3 py-3 text-sm font-semibold text-white ${
+                            statusValue === ''
+                              ? 'cursor-not-allowed bg-gray-400'
+                              : 'bg-blue-600 hover:bg-blue-500'
+                          }`}
+                        >
+                          Speichern
+                          <img src={ICON.Check} className="-mr-0.5 h-5 w-5" />
+                        </button>
+                      </div>
                     </div>
-                    <div className="w-6/12 ">
-                      <button
-                        disabled={statusValue === ''}
-                        onClick={handleStatus}
-                        type="button"
-                        className={`inline-flex items-center gap-x-2 rounded px-3 py-3 text-sm font-semibold text-white ${
-                          statusValue === ''
-                            ? 'cursor-not-allowed bg-gray-400'
-                            : 'bg-blue-600 hover:bg-blue-500'
-                        }`}
-                      >
-                        Speichern
-                        <img src={ICON.Check} className="-mr-0.5 h-5 w-5" />
-                      </button>
+                  ) : (
+                    <div>
+                      <div className="inline-flex rounded-full gap-2 bg-green-300 border border-green-400 py-1.5 px-4 mt-2">
+                        <img src={ICON.Check} className="h-5 w-5" />
+                        <p>Abgeschlossen</p>
+                      </div>
                     </div>
-                  </div>
+                  )}
                   <div className="mt-1 text-xs text-gray-500 sm:mt-0 font-light pt-4">
                     Es ist sehr wichtig, dass der Bestellstatus immer
                     ordnungsgemäß angepasst wird. Dies hilft nicht nur bei der
