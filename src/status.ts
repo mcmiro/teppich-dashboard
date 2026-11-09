@@ -8,3 +8,5 @@ export const statusTitles: StatusTitlesProps = {
   unobtainable: 'Nicht erreichbar',
   done: 'Abgeschlossen',
 };
+
+export const MAX_REMINDERS = 3;

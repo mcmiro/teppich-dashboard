@@ -7,9 +7,10 @@ interface LabelObject {
 
 export interface LabelProps {
   status: string;
+  suffix?: string;
 }
 
-const Label = ({ status }: LabelProps) => {
+const Label = ({ status, suffix }: LabelProps) => {
   const [labelValues, setLabelValues] = useState<LabelObject>({
     status: '',
     bgColor: '',
@@ -70,6 +71,7 @@ const Label = ({ status }: LabelProps) => {
       className={`rounded-full px-3 py-0.5 text-xs font-light ${labelValues.bgColor}`}
     >
       {labelValues.status}
+      {suffix && ` · ${suffix}`}
     </div>
   );
 };

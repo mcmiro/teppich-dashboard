@@ -5,8 +5,7 @@ import { useDateTime } from '../../hooks/use-date-time';
 import { useOrders } from '../../hooks/use-orders';
 import { OrderDataModel } from '../../models/order';
 import { PropductModel } from '../../models/product';
-
-const MAX_REMINDERS = 3;
+import { MAX_REMINDERS } from '../../status';
 
 export interface OrderModalProps {
   data: OrderDataModel;
