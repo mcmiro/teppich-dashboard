@@ -1,17 +1,29 @@
 import { useState } from 'react';
 import { ICON } from '../../assets/icons';
 
+const statusLabels: Record<string, string> = {
+  open: 'offen',
+  inprogress: 'in Bearbeitung',
+  pick: 'angenommen',
+  unobtainable: 'nicht erreichbar',
+  done: 'abgeschlossen',
+  cancelled: 'storno',
+};
+
 export interface DropDownProps {
   onSelect: (value: string) => void;
+  defaultValue?: string;
 }
 
-const DropDown = ({ onSelect }: DropDownProps) => {
+const DropDown = ({ onSelect, defaultValue }: DropDownProps) => {
   const [active, setActive] = useState<boolean>(false);
-  const [selectedItem, setSelectedItem] = useState<string>('');
+  const [selectedItem, setSelectedItem] = useState<string>(
+    defaultValue ? statusLabels[defaultValue] || '' : '',
+  );
 
   const handleSelect = (
     event: React.MouseEvent<HTMLLIElement, MouseEvent>,
-    value: string
+    value: string,
   ) => {
     const targetItem = event.currentTarget;
     setSelectedItem(targetItem.textContent || '');

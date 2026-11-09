@@ -1,76 +1,88 @@
-import { useEffect, useState } from 'react';
-import { useOrders } from '../../hooks/use-orders';
-import { useDateTime } from '../../hooks/use-date-time';
+import { useMemo, useState } from 'react';
 import { ICON } from '../../assets/icons';
+import {
+  compareDaysInPercent,
+  compareMonthsInPercent,
+  countDailyOrders,
+  countOpenOrders,
+  germanFormatSumm,
+  germanMonth,
+  getOrdersForMonth,
+  getStatusStatistics,
+  getSummaryDaily,
+  getSummaryMonthly,
+  getTodayDate,
+  useOrders,
+} from '../../hooks/use-orders';
 
 const Statistic = () => {
-  const {
-    orders,
-    summaryMonthly,
-    setCurrentYear,
-    currentYear,
-    summaryDaily,
-    countDailyOrders,
-    countOpenOrders,
-    compareDaysInPercent,
-    germanFormatSumm,
-    compareMonthsInPercent,
-    getSelectedMonthOrders,
-    filteredOrders,
-    statusStatistic,
-  } = useOrders();
+  const { orders } = useOrders();
 
-  const { todayDate, germanMonth } = useDateTime();
+  const [currentMonthIndex, setCurrentMonthIndex] = useState<number>(() =>
+    new Date().getMonth(),
+  );
+  const [currentYear, setCurrentYear] = useState<number>(() =>
+    new Date().getFullYear(),
+  );
 
-  const [currentMonthIndex, setCurrentMonthIndex] = useState<number>(-1);
-  const [monthInPercent, setMonthInPercent] = useState<number>(0);
+  const currentMonthName = germanMonth(currentMonthIndex);
+  const todayDateStr = getTodayDate();
 
-  useEffect(() => {
-    orders.length && setMonthInPercent(compareMonthsInPercent());
-  }, [orders]);
+  // Memoize calculations that depend on orders
+  const monthlySummary = useMemo(
+    () => getSummaryMonthly(orders, currentMonthName, currentYear),
+    [orders, currentMonthName, currentYear],
+  );
 
-  useEffect(() => {
-    orders.length && getSelectedMonthOrders(germanMonth(currentMonthIndex));
-  }, [orders, currentMonthIndex]);
+  const dailySummary = useMemo(
+    () => getSummaryDaily(orders, todayDateStr),
+    [orders, todayDateStr],
+  );
 
-  useEffect(() => {
-    filteredOrders.length && console.log('filteredOrders', filteredOrders);
-  }, [filteredOrders]);
+  const dailyOrders = useMemo(
+    () => countDailyOrders(orders, todayDateStr),
+    [orders, todayDateStr],
+  );
 
-  useEffect(() => {
-    const currentDate = new Date();
-    const monthIndex = currentDate.getMonth();
-    setCurrentMonthIndex(monthIndex);
-  }, []);
+  const openOrders = useMemo(() => countOpenOrders(orders), [orders]);
+
+  const daysPercent = useMemo(() => compareDaysInPercent(orders), [orders]);
+
+  const monthInPercent = useMemo(
+    () => compareMonthsInPercent(orders, currentYear),
+    [orders, currentYear],
+  );
+
+  const filteredOrders = useMemo(
+    () => getOrdersForMonth(orders, currentMonthName, currentYear),
+    [orders, currentMonthName, currentYear],
+  );
+
+  const statusStatistic = useMemo(
+    () => getStatusStatistics(filteredOrders),
+    [filteredOrders],
+  );
 
   const stats = [
     {
-      name: `Umsatz für ${germanMonth(currentMonthIndex)} ${currentYear}`,
-      value: `€ ${germanFormatSumm(
-        summaryMonthly(germanMonth(currentMonthIndex))
-      )}`,
-      change: `${monthInPercent > 0 ? '+' : ''} ${germanFormatSumm(
-        monthInPercent
-      )}%`,
-      changeType: `${monthInPercent > 0 ? 'positive' : 'negative'}`,
+      name: `Umsatz für ${currentMonthName} ${currentYear}`,
+      value: `€ ${germanFormatSumm(monthlySummary)}`,
+      change: `${monthInPercent > 0 ? '+' : ''} ${germanFormatSumm(monthInPercent)}%`,
+      changeType: monthInPercent >= 0 ? 'positive' : 'negative',
     },
     {
-      name: `Umsatz heute`,
-      value: `€ ${germanFormatSumm(summaryDaily(todayDate(), orders))}`,
-      change: `${
-        compareDaysInPercent(orders) >= 0 ? '+' : ''
-      } ${compareDaysInPercent(orders).toFixed(2)}%`,
-      changeType: `${
-        compareDaysInPercent(orders) >= 0 ? 'positive' : 'negative'
-      }`,
+      name: 'Umsatz heute',
+      value: `€ ${germanFormatSumm(dailySummary)}`,
+      change: `${daysPercent >= 0 ? '+' : ''} ${daysPercent.toFixed(2)}%`,
+      changeType: daysPercent >= 0 ? 'positive' : 'negative',
     },
     {
       name: 'Bestellungen heute',
-      value: countDailyOrders(todayDate(), orders),
+      value: dailyOrders,
     },
     {
       name: 'Offene Bestellungen',
-      value: countOpenOrders(orders),
+      value: openOrders,
     },
   ];
 
@@ -167,7 +179,7 @@ const Statistic = () => {
       </div>
       <div className="overflow-hidden py-2 px-4 mt-4">
         <div className="w-full flex-none font-base leading-8 tracking-tight text-gray-900">
-          {statusStatistic.length &&
+          {statusStatistic.length > 0 &&
             statusStatistic.map((el, index) => (
               <div key={index} className="flex justify-between w-full border-b">
                 <div>{el.title}</div>

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { OrderDataModel } from '../../models/order';
-import { PropductModel } from '../../models/product';
+import { ICON } from '../../assets/icons';
+import { UI } from '../../components';
 import { useDateTime } from '../../hooks/use-date-time';
 import { useOrders } from '../../hooks/use-orders';
-import { UI } from '../../components';
-import { ICON } from '../../assets/icons';
+import { OrderDataModel } from '../../models/order';
+import { PropductModel } from '../../models/product';
+
+const MAX_REMINDERS = 3;
 
 export interface OrderModalProps {
   data: OrderDataModel;
@@ -13,10 +15,34 @@ export interface OrderModalProps {
 
 const OrderModal = ({ data, onToggle }: OrderModalProps) => {
   const { handleDate, handleTime } = useDateTime();
-  const { handleUpdateStatus } = useOrders();
+  const { orders, handleUpdateOrder, handleSendReminder } = useOrders();
 
   const [statusValue, setStatusValue] = useState<string>('');
   const [products, setProducts] = useState<PropductModel[]>();
+  const [noteValue, setNoteValue] = useState<string>(data.note || '');
+  const [reminderSending, setReminderSending] = useState(false);
+  const [reminderMessage, setReminderMessage] = useState<string>('');
+
+  // `data` is a snapshot from the table, read the live order for the current count
+  const liveOrder = orders.find((o) => o.id === data.id) ?? data;
+  const reminderCount = Number(liveOrder.reminder) || 0;
+  const canSendReminder =
+    liveOrder.status === 'unobtainable' && reminderCount < MAX_REMINDERS;
+
+  const onSendReminder = async () => {
+    setReminderSending(true);
+    setReminderMessage('');
+    try {
+      const res = await handleSendReminder(data.id);
+      setReminderMessage(res.message);
+    } catch {
+      setReminderMessage('Erinnerung konnte nicht gesendet werden.');
+    } finally {
+      setReminderSending(false);
+    }
+  };
+
+  const hasChanges = statusValue !== '' || noteValue !== (data.note || '');
 
   const handleToggleModal = (event: any) => {
     if (event.target === event.currentTarget) {
@@ -28,19 +54,20 @@ const OrderModal = ({ data, onToggle }: OrderModalProps) => {
     setStatusValue(payload);
   };
 
-  const handleStatus = () => {
-    handleUpdateStatus(data.id, statusValue);
+  const handleSave = () => {
+    const status = statusValue || data.status;
+    handleUpdateOrder(data.id, status, noteValue);
   };
 
   useEffect(() => {
     const parsedProducts: PropductModel[] = JSON.parse(
-      JSON.stringify(data.products)
+      JSON.stringify(data.products),
     );
     setProducts(parsedProducts);
   }, [data]);
 
   const productItems = products?.map((el: PropductModel) => {
-    return <UI.Product product={el} key={el.id} />;
+    return <UI.Product product={el} key={el.id.toString()} />;
   });
 
   return (
@@ -49,7 +76,7 @@ const OrderModal = ({ data, onToggle }: OrderModalProps) => {
       className="flex items-center justify-center fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-20 cursor-pointer"
     >
       <div className="bg-white h-full md:h-[80vh] w-full max-w-[800px] md:rounded-lg cursor-default overflow-y-scroll">
-        <div className="overflow-hidden bg-white shadow sm:rounded-lg min-h-full pb-24">
+        <div className="overflow-hidden bg-white sm:rounded-lg min-h-full pb-24">
           <div className="flex justify-end pt-4 px-4 text-[24px]">
             <div
               onClick={onToggle}
@@ -136,21 +163,68 @@ const OrderModal = ({ data, onToggle }: OrderModalProps) => {
                   </div>
                 )}
               </div>
+              <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt className="text-sm font-medium text-gray-900">Notiz</dt>
+                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                  <textarea
+                    value={noteValue}
+                    onChange={(e) => setNoteValue(e.target.value)}
+                    rows={3}
+                    placeholder="Optionale Notiz hinzufügen..."
+                    className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                  />
+                </dd>
+              </div>
+              <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt className="text-sm font-medium text-gray-900">
+                  Erinnerung
+                </dt>
+                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                  <button
+                    disabled={!canSendReminder || reminderSending}
+                    onClick={onSendReminder}
+                    type="button"
+                    className={`inline-flex items-center gap-x-2 rounded px-3 py-2 text-sm font-semibold text-white ${
+                      !canSendReminder || reminderSending
+                        ? 'cursor-not-allowed bg-gray-400'
+                        : 'bg-blue-600 hover:bg-blue-500'
+                    }`}
+                  >
+                    {reminderSending ? 'Wird gesendet...' : 'Erinnerung senden'}
+                    <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">
+                      {reminderCount}/{MAX_REMINDERS}
+                    </span>
+                  </button>
+                  {liveOrder.status !== 'unobtainable' && (
+                    <p className="pt-2 text-xs text-gray-500">
+                      Nur für Bestellungen mit Status „Nicht erreichbar“.
+                    </p>
+                  )}
+                  {reminderMessage && (
+                    <p className="pt-2 text-xs text-gray-500">
+                      {reminderMessage}
+                    </p>
+                  )}
+                </dd>
+              </div>
               <div className="px-4 py-6 sm:px-6">
                 <dt className="text-sm font-medium text-gray-900">
                   Bestellstatus
                   {data.status !== 'done' ? (
                     <div className="flex gap-2 w-full pt-2">
                       <div className="w-6/12">
-                        <UI.DropDown onSelect={handleSelectDropDown} />
+                        <UI.DropDown
+                          onSelect={handleSelectDropDown}
+                          defaultValue={data.status}
+                        />
                       </div>
                       <div className="w-6/12 ">
                         <button
-                          disabled={statusValue === ''}
-                          onClick={handleStatus}
+                          disabled={!hasChanges}
+                          onClick={handleSave}
                           type="button"
                           className={`inline-flex items-center gap-x-2 rounded px-3 py-3 text-sm font-semibold text-white ${
-                            statusValue === ''
+                            !hasChanges
                               ? 'cursor-not-allowed bg-gray-400'
                               : 'bg-blue-600 hover:bg-blue-500'
                           }`}

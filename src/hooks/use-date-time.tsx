@@ -1,92 +1,69 @@
+import { useCallback } from 'react';
+
+const months = [
+  'Januar',
+  'Februar',
+  'März',
+  'April',
+  'Mai',
+  'Juni',
+  'Juli',
+  'August',
+  'September',
+  'Oktober',
+  'November',
+  'Dezember',
+];
+
+const optionsDate: Intl.DateTimeFormatOptions = {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+};
+
+const optionsTime: Intl.DateTimeFormatOptions = {
+  hour: '2-digit',
+  minute: '2-digit',
+};
+
 export const useDateTime = () => {
-  const optionsDate = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  };
-
-  const optionsTime = {
-    hour: '2-digit',
-    minute: '2-digit',
-  };
-
-  const handleDate = (dateTimeObject: string) => {
+  const handleDate = useCallback((dateTimeObject: string) => {
     const dateObject = new Date(dateTimeObject);
-    const parsedDate = dateObject.toLocaleDateString(
-      'de-DE',
-      optionsDate as Intl.DateTimeFormatOptions
-    );
-
+    const parsedDate = dateObject.toLocaleDateString('de-DE', optionsDate);
     return parsedDate;
-  };
+  }, []);
 
-  const handleTime = (dateTimeObject: string) => {
+  const handleTime = useCallback((dateTimeObject: string) => {
     const dateObject = new Date(dateTimeObject);
-
-    const parsedTime = dateObject.toLocaleTimeString(
-      'de-DE',
-      optionsTime as Intl.DateTimeFormatOptions
-    );
-
+    const parsedTime = dateObject.toLocaleTimeString('de-DE', optionsTime);
     return parsedTime;
-  };
+  }, []);
 
-  const currentYear = () => {
+  const currentYear = useCallback(() => {
     const currentDate = new Date();
     const year = currentDate.getFullYear();
     return year;
-  };
+  }, []);
 
-  const currentMonth = (): string => {
-    const months = [
-      'Januar',
-      'Februar',
-      'März',
-      'April',
-      'Mai',
-      'Juni',
-      'Juli',
-      'August',
-      'September',
-      'Oktober',
-      'November',
-      'Dezember',
-    ];
-
+  const currentMonth = useCallback((): string => {
     const currentDate = new Date();
     const monthIndex = currentDate.getMonth();
-
     return months[monthIndex];
-  };
+  }, []);
 
-  const currentDay = () => {
+  const currentDay = useCallback(() => {
     const currentDate = new Date();
     const day = currentDate.getDate();
     return day;
-  };
+  }, []);
 
-  const todayDate = () => {
+  const todayDate = useCallback(() => {
     return handleDate(new Date().toString());
-  };
+  }, [handleDate]);
 
-  const germanMonth = (monthIndex: number) => {
-    const months = [
-      'Januar',
-      'Februar',
-      'März',
-      'April',
-      'Mai',
-      'Juni',
-      'Juli',
-      'August',
-      'September',
-      'Oktober',
-      'November',
-      'Dezember',
-    ];
-
+  const germanMonth = useCallback((monthIndex: number) => {
     return months[monthIndex];
-  };
+  }, []);
 
   return {
     handleDate,

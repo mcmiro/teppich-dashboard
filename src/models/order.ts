@@ -14,4 +14,6 @@ export interface OrderDataModel {
   status: string;
   created_at: string;
   updated_at: string;
+  note?: string;
+  reminder?: string;
 }

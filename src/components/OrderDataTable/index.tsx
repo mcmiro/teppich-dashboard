@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import DataTable from 'react-data-table-component';
-import { OrderDataModel } from '../../models/order';
 import { UI } from '../../components';
 import { useDateTime } from '../../hooks/use-date-time';
+import { OrderDataModel } from '../../models/order';
 import useSearchStore from '../../store/search-store';
 
 export interface OrderDataTableProps {
@@ -93,14 +93,13 @@ const OrderDataTable = ({ orders }: OrderDataTableProps) => {
 
   // Filter
   const filteredItems = orders.filter((item) =>
-    ['first_name', 'email'].some(
-      (prop) =>
-        item[prop as keyof OrderDataModel] &&
-        item[prop as keyof OrderDataModel]
-          .toString()
-          .toLowerCase()
-          .includes(searchValue.toLowerCase())
-    )
+    ['first_name', 'email'].some((prop) => {
+      const value = item[prop as keyof OrderDataModel];
+      return (
+        value &&
+        value.toString().toLowerCase().includes(searchValue.toLowerCase())
+      );
+    }),
   );
 
   const handleRowClick = (row: OrderDataModel) => {
